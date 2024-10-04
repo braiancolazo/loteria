@@ -3,8 +3,11 @@ package ar.edu.utn.frc.tup.lciii.services.impl;
 import ar.edu.utn.frc.tup.lciii.Clients.LoteriaRestClient;
 import ar.edu.utn.frc.tup.lciii.JpaRepository.ApuestaJpaRepository;
 import ar.edu.utn.frc.tup.lciii.dtos.common.RequestPostApuesta;
+import ar.edu.utn.frc.tup.lciii.dtos.common.ResponseGetSorteo;
 import ar.edu.utn.frc.tup.lciii.dtos.common.ResponsePostApuesta;
 import ar.edu.utn.frc.tup.lciii.entities.ApuestaEntity;
+import ar.edu.utn.frc.tup.lciii.entities.TotalEntity;
+import ar.edu.utn.frc.tup.lciii.models.Apuesta;
 import ar.edu.utn.frc.tup.lciii.models.Sorteo;
 import ar.edu.utn.frc.tup.lciii.services.LoteriaService;
 import jakarta.persistence.Entity;
@@ -14,6 +17,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -92,4 +96,66 @@ public class LoteriaServiceImpl implements LoteriaService {
 
         return response;
     }
+
+    @Override
+    public ResponseGetSorteo getSorteoApuestaService(int id_sorteo) {
+        Sorteo sorteoElegido = new Sorteo();
+        Sorteo[] sorteo = loteriaRestClient.obtenerSorteos(null);
+        for (Sorteo s: sorteo){
+            if(s.getNumeroSorteo()==id_sorteo){
+                sorteoElegido = s;
+            }
+        }
+        List<ApuestaEntity> apuestasEntity = apuestaJpaRepository.findAll();
+        ResponseGetSorteo response = new ResponseGetSorteo();
+        response.setId_sorteo(sorteoElegido.getNumeroSorteo());
+        response.setFecha_sorteo(sorteoElegido.getFecha());
+        response.setTotalEnReserva(sorteoElegido.getDineroTotalAcumulado());
+        List<Apuesta> lstApuesta = new ArrayList<Apuesta>();
+        for (ApuestaEntity a: apuestasEntity){
+            Apuesta apuesta = new Apuesta();
+            if (a.getFecha_sorteo().equals(sorteoElegido.getFecha())){
+                apuesta.setId_cliente(a.getId_cliente());
+                apuesta.setNumero(String.valueOf(a.getNumero()));
+                apuesta.setResultado(a.getResultado());
+                apuesta.setMontoApostado(a.getMontoApostado());
+                apuesta.setPremio(a.getPremio());
+            }
+            lstApuesta.add(apuesta);
+        }
+        response.setApuestas(lstApuesta);
+        return response;
+    }
+
+    @Override
+    public TotalEntity getTotalService(int id_sorteo) {
+        Sorteo sorteoElegido = new Sorteo();
+        Sorteo[] sorteo = loteriaRestClient.obtenerSorteos(null);
+        for (Sorteo s: sorteo){
+            if(s.getNumeroSorteo()==id_sorteo){
+                sorteoElegido = s;
+            }
+        }
+        TotalEntity totalElegido = new TotalEntity();
+        totalElegido.setId_sorteo(sorteoElegido.getNumeroSorteo());
+        totalElegido.setFecha_sorteo(sorteoElegido.getFecha());
+        totalElegido.setTotalEnReserva(sorteoElegido.getDineroTotalAcumulado());
+        List<ApuestaEntity> apuestasEntity = apuestaJpaRepository.findAll();
+        int apuestas = 0;
+        BigDecimal pagado = new BigDecimal(0);
+        for (ApuestaEntity a: apuestasEntity){
+           if(a.getFecha_sorteo().equals(sorteoElegido.getFecha())){
+                apuestas+= a.getMontoApostado();
+                pagado = pagado.add(a.getPremio());
+           }
+        }
+        totalElegido.setTotalPagado(pagado);
+        totalElegido.setTotalDeApuestas(apuestas);
+
+
+
+
+        return totalElegido;
+    }
+
 }
