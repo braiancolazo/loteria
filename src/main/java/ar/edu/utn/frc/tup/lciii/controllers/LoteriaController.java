@@ -24,14 +24,7 @@ public class LoteriaController {
     ApuestaJpaRepository apuestaJpaRepository;
 
 
-    @GetMapping("sorteos")
-    public ResponseEntity<Sorteo[]> getSorteos(@RequestParam(required = false) String fecha ) {
-        return ResponseEntity.ok(loteriaService.getSorteosService(fecha));
-    }
-    @GetMapping
-    public List<ApuestaEntity> getapuestas() {
-        return apuestaJpaRepository.findAll();
-    }
+
     @PostMapping("apuesta")
     public ResponseEntity<ResponsePostApuesta> apuesta(@RequestBody RequestPostApuesta request) {
         return ResponseEntity.ok(loteriaService.responsePostApuestaService(request));
@@ -43,6 +36,14 @@ public class LoteriaController {
     @GetMapping("total/{id_sorteo}")
     public ResponseEntity<TotalEntity> getTotalController(@PathVariable int id_sorteo) {
         return ResponseEntity.ok(loteriaService.getTotalService(id_sorteo));
+    }
+    @GetMapping("sorteos")
+    public ResponseEntity<Sorteo[]> getSorteos(@RequestParam(required = false) String fecha ) {
+        return ResponseEntity.ok(loteriaService.getSorteosService(fecha));
+    }
+    @GetMapping
+    public List<ApuestaEntity> getapuestas() {
+        return apuestaJpaRepository.findAll();
     }
 
 

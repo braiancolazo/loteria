@@ -16,6 +16,18 @@
     <properties>
         <java.version>17</java.version>
     </properties>
+    <!--    Circuit breaker    -->
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-dependencies</artifactId>
+                <version>2022.0.4</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
     <dependencies>
         <!--    Spring dependencies    -->
@@ -67,6 +79,17 @@
             <artifactId>modelmapper</artifactId>
             <version>3.1.1</version>
         </dependency>
+        <!--    object mapper para las fechas   -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.datatype</groupId>
+            <artifactId>jackson-datatype-jsr310</artifactId>
+        </dependency>
+        <!--    circuit breaker  -->
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-circuitbreaker-reactor-resilience4j</artifactId>
+        </dependency>
+
 
     </dependencies>
 
